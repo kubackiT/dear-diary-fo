@@ -1,5 +1,9 @@
 <div class="container">
   <header class="jumbotron">
-    <p>{{ content }}</p>
+    @if(isLoggedIn){
+      <app-board-notes></app-board-notes>
+    } @else {
+      <p>You need to be logged to see this content</p>
+    }
   </header>
 </div>

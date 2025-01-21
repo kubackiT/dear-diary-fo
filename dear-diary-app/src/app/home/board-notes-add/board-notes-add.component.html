@@ -1,0 +1,66 @@
+
+<div class="container">
+  <header class="jumbotron">
+    <div class="container mt-4">
+      <div class="d-flex justify-content-between">
+        <h2 >{{ isEditMode ? 'Edit Note' : 'Add new note' }}</h2>
+
+        @if(isEditMode){
+          <div class="text-muted text-right">
+            <span>Created At: {{ noteData.createdAt | date: 'EEEE, MMMM d, y, H:mm' }}</span>
+            <p>Last Updated: {{ noteData.updatedAt | date: 'EEEE, MMMM d, y, H:mm' }}</p>
+          </div>
+        }
+      </div>
+
+      <form 
+      name="form"
+      (ngSubmit)="f.form.valid && onSubmit()"
+      #f="ngForm"
+      novalidate
+      >
+        <div class="mb-3 form-group">
+          <label for="title" class="form-label">Title</label>
+          <input
+            type="text"
+            class="form-control"
+            name="title"
+            [(ngModel)]="form.title"
+            placeholder="Enter note title"
+            required
+            #title="ngModel"
+            [ngClass]="{ 'is-invalid': f.submitted && title.errors }"
+          />
+          @if (title.errors && f.submitted) {
+            <div class="invalid-feedback">Title is required!</div>
+          }
+        </div>
+
+        <div class="mb-3 form-group">
+          <label for="content" class="form-label">Content</label>
+          <textarea
+            class="form-control"
+            id="content"
+            rows="7"
+            name="content"
+            [(ngModel)]="form.content"
+            placeholder="Enter note content"
+            required
+            #content="ngModel"
+            [ngClass]="{ 'is-invalid': f.submitted && title.errors }"
+          ></textarea>
+          @if (content.errors && f.submitted) {
+            <div class="invalid-feedback">Content is required!</div>
+          }
+        </div>
+        <div class="d-flex justify-content-between">
+          <button type="submit" class="btn btn-primary">{{ isEditMode ? 'Update' : 'Save' }}</button>
+          @if(isEditMode){
+            <button type="button" class="btn bg-danger" (click)="onDelete()">Delete</button>
+          }
+        </div>
+
+      </form>
+    </div>
+  </header>
+</div>

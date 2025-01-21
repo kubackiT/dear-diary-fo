@@ -10,10 +10,12 @@ import { RegisterComponent } from './register/register.component';
 import { HomeComponent } from './home/home.component';
 import { ProfileComponent } from './profile/profile.component';
 import { BoardAdminComponent } from './board-admin/board-admin.component';
-import { BoardModeratorComponent } from './board-moderator/board-moderator.component';
 import { BoardUserComponent } from './board-user/board-user.component';
-
+import { BoardNotesComponent } from './home/board-notes/board-notes.component';
 import { httpInterceptorProviders } from './_helpers/http.interceptor';
+import { BoardNotesAddComponent } from './home/board-notes-add/board-notes-add.component';
+import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
 
 @NgModule({
   declarations: [
@@ -23,16 +25,18 @@ import { httpInterceptorProviders } from './_helpers/http.interceptor';
     HomeComponent,
     ProfileComponent,
     BoardAdminComponent,
-    BoardModeratorComponent,
-    BoardUserComponent
+    BoardUserComponent,
+    BoardNotesComponent,
+    BoardNotesAddComponent
   ],
   imports: [
     BrowserModule,
     AppRoutingModule,
     FormsModule,
-    HttpClientModule
+    HttpClientModule,
+    MatSnackBarModule
   ],
-  providers: [httpInterceptorProviders],
+  providers: [httpInterceptorProviders, provideAnimationsAsync()],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

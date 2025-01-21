@@ -1,0 +1,22 @@
+<div>
+  <div class="my-3 d-flex justify-content-between align-items-center">
+    <h2>My notes</h2>
+    <button [routerLink]="['/notes/add']">Add New Note</button>
+  </div>
+  @if(notes.length){
+    <li *ngFor="let note of notes" class="list-group-item">
+        <div [routerLink]="['/notes', note._id]" class="d-flex justify-content-between align-items-center">
+          <div class="d-flex justify-content-between align-items-center">
+            <span class="list-title truncate mr-3 font-weight-bold font-italic" >{{ note.title }}</span>
+            <div class="list-content text-muted truncate">{{note.content}}</div>
+          </div>
+          <span>Last Updated: {{ note.updatedAt | date: 'EEEE, MMMM d, y, H:mm' }}</span>
+        </div>
+    </li>
+  }
+  @else{
+    <h5 class="d-flex justify-content-center">There is no notes! Add new note</h5>
+  }
+
+
+</div>

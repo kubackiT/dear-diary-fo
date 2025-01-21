@@ -13,7 +13,6 @@ export class AppComponent {
   private roles: string[] = [];
   isLoggedIn = false;
   showAdminBoard = false;
-  showModeratorBoard = false;
   username?: string;
 
   eventBusSub?: Subscription;
@@ -32,7 +31,6 @@ export class AppComponent {
       this.roles = user.roles;
 
       this.showAdminBoard = this.roles.includes('ROLE_ADMIN');
-      this.showModeratorBoard = this.roles.includes('ROLE_MODERATOR');
 
       this.username = user.username;
     }
