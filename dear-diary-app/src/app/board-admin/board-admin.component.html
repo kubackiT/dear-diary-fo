@@ -1,5 +1,167 @@
 <div class="container">
   <header class="jumbotron">
-    <p>{{ content }}</p>
+    <div class="admin-header">
+      <div>
+        <h2>Research panel</h2>
+        <p class="text-muted">{{ content }}</p>
+      </div>
+      <button class="btn btn-outline-secondary" type="button" (click)="loadResearchData()" [disabled]="isLoading">
+        Refresh
+      </button>
+    </div>
+
+    @if (config) {
+      <form class="research-grid" (ngSubmit)="saveConfig()">
+        <section class="research-section">
+          <h5>Experiment control</h5>
+
+          <div class="form-group">
+            <label for="mode">Mode</label>
+            <select id="mode" class="form-control" name="mode" [(ngModel)]="config.mode">
+              <option value="enrollment">Enrollment</option>
+              <option value="verification">Verification</option>
+            </select>
+          </div>
+
+          <div class="form-check">
+            <input id="profileUpdatesEnabled" class="form-check-input" type="checkbox" name="profileUpdatesEnabled" [(ngModel)]="config.profileUpdatesEnabled" />
+            <label class="form-check-label" for="profileUpdatesEnabled">Profile updates enabled</label>
+          </div>
+
+          <div class="form-check">
+            <input id="profileFrozen" class="form-check-input" type="checkbox" name="profileFrozen" [(ngModel)]="config.profileFrozen" />
+            <label class="form-check-label" for="profileFrozen">Profile frozen</label>
+          </div>
+        </section>
+
+        <section class="research-section">
+          <h5>Sampling</h5>
+
+          <div class="form-group">
+            <label for="minEnrollmentSamples">Minimum enrollment samples</label>
+            <input id="minEnrollmentSamples" class="form-control" type="number" min="1" name="minEnrollmentSamples" [(ngModel)]="config.minEnrollmentSamples" />
+          </div>
+
+          <div class="form-group">
+            <label for="sampleKeyThreshold">Enrollment key threshold</label>
+            <input id="sampleKeyThreshold" class="form-control" type="number" min="100" step="100" name="sampleKeyThreshold" [(ngModel)]="config.sampleKeyThreshold" />
+          </div>
+
+          <div class="form-group">
+            <label for="verificationKeyThreshold">Verification key threshold</label>
+            <input id="verificationKeyThreshold" class="form-control" type="number" min="20" step="10" name="verificationKeyThreshold" [(ngModel)]="config.verificationKeyThreshold" />
+          </div>
+
+          <div class="form-group">
+            <label for="verificationStep">Verification refresh step</label>
+            <input id="verificationStep" class="form-control" type="number" min="10" step="10" name="verificationStep" [(ngModel)]="config.verificationStep" />
+          </div>
+
+          <div class="form-group">
+            <label for="longPauseThresholdMs">Long pause threshold ms</label>
+            <input id="longPauseThresholdMs" class="form-control" type="number" min="500" step="250" name="longPauseThresholdMs" [(ngModel)]="config.longPauseThresholdMs" />
+          </div>
+
+          <div class="form-group">
+            <label for="maxDigraphFeatures">Max digraph features</label>
+            <input id="maxDigraphFeatures" class="form-control" type="number" min="0" step="5" name="maxDigraphFeatures" [(ngModel)]="config.maxDigraphFeatures" />
+          </div>
+        </section>
+
+        <section class="research-section research-status">
+          <h5>Selected user</h5>
+
+          <div class="form-group">
+            <label for="selectedUser">User</label>
+            <select id="selectedUser" class="form-control" name="selectedUser" [(ngModel)]="selectedUserId" (ngModelChange)="onSelectedUserChange()">
+              @for (user of users; track user.id) {
+                <option [value]="user.id">{{ user.username }} - {{ user.email }}</option>
+              }
+            </select>
+          </div>
+
+          <div class="status-row">
+            <span>Profile version</span>
+            <strong>{{ selectedUser?.typingProfile?.version || '-' }}</strong>
+          </div>
+          <div class="status-row">
+            <span>Profile samples</span>
+            <strong>{{ selectedUser?.typingProfile?.sampleCount || 0 }}</strong>
+          </div>
+          <div class="status-row">
+            <span>Profile frozen</span>
+            <strong>{{ selectedUser?.typingProfile?.frozen ? 'yes' : 'no' }}</strong>
+          </div>
+          <div class="status-row">
+            <span>Enrollment samples</span>
+            <strong>{{ stats?.enrollmentCount || 0 }}</strong>
+          </div>
+          <div class="status-row">
+            <span>Verification samples</span>
+            <strong>{{ stats?.verificationCount || 0 }}</strong>
+          </div>
+          <div class="status-row">
+            <span>Frozen at</span>
+            <strong>{{ selectedUser?.typingProfile?.frozenAt ? (selectedUser.typingProfile.frozenAt | date: 'short') : '-' }}</strong>
+          </div>
+
+          <div class="form-group">
+            <label for="currentActorType">Current verification actor</label>
+            <select
+              id="currentActorType"
+              class="form-control"
+              name="currentActorType"
+              [ngModel]="selectedUser?.researchSettings?.currentActorType || 'owner'"
+              (ngModelChange)="onActorTypeChange($event)"
+            >
+              <option value="owner">Owner</option>
+              <option value="impostor">Impostor</option>
+            </select>
+          </div>
+        </section>
+
+        <div class="admin-actions">
+          <button class="btn btn-primary" type="submit">Save config</button>
+          <button class="btn btn-warning" type="button" (click)="freezeProfile()" [disabled]="!selectedUserId">Freeze selected profile</button>
+        </div>
+      </form>
+
+      <section class="research-section latest-results">
+        <div class="latest-results-header">
+          <h5>Latest verification results</h5>
+        </div>
+
+        @if (latestVerificationSamples.length) {
+          <div class="table-responsive">
+            <table class="table table-sm table-striped">
+              <thead>
+                <tr>
+                  <th>Time</th>
+                  <th>Actor</th>
+                  <th>Score</th>
+                  <th>Match</th>
+                  <th>Distance</th>
+                  <th>Keys</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (sample of latestVerificationSamples; track sample._id) {
+                  <tr>
+                    <td>{{ sample.timestamp | date: 'short' }}</td>
+                    <td>{{ formatActorType(sample.actorType) }}</td>
+                    <td>{{ formatScore(sample.verification?.score) }}</td>
+                    <td>{{ sample.verification?.isMatch ? 'yes' : 'no' }}</td>
+                    <td>{{ formatDistance(sample.verification?.distance) }}</td>
+                    <td>{{ sample.keyCount }}</td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        } @else {
+          <p class="text-muted mb-0">No verification samples yet.</p>
+        }
+      </section>
+    }
   </header>
 </div>

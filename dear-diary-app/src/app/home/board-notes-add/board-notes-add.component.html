@@ -39,6 +39,7 @@
         <div class="mb-3 form-group">
           <label for="content" class="form-label">Content</label>
           <textarea
+            (keydown)="handleKeydown($event)" (keyup)="handleKeyup($event)"
             class="form-control"
             id="content"
             rows="7"
