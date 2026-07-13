@@ -138,7 +138,10 @@
                 <tr>
                   <th>Time</th>
                   <th>Actor</th>
-                  <th>Score</th>
+                  <th>Final</th>
+                  <th>Stat</th>
+                  <th>TF</th>
+                  <th>Decision</th>
                   <th>Match</th>
                   <th>Distance</th>
                   <th>Keys</th>
@@ -150,6 +153,9 @@
                     <td>{{ sample.timestamp | date: 'short' }}</td>
                     <td>{{ formatActorType(sample.actorType) }}</td>
                     <td>{{ formatScore(sample.verification?.score) }}</td>
+                    <td>{{ formatScore(sample.verification?.statisticalScore) }}</td>
+                    <td>{{ formatScore(sample.verification?.tensorflowScore) }}</td>
+                    <td>{{ sample.verification?.decision || '-' }}</td>
                     <td>{{ sample.verification?.isMatch ? 'yes' : 'no' }}</td>
                     <td>{{ formatDistance(sample.verification?.distance) }}</td>
                     <td>{{ sample.keyCount }}</td>
